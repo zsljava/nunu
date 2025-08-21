@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"{{ .ProjectName }}/internal/service"
+	"{{ .ProjectName }}/internal/{{ .BasePkgName}}/service"
 )
 
 type {{ .StructName }}Handler struct {

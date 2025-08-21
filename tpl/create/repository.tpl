@@ -2,7 +2,8 @@ package repository
 
 import (
     "context"
-	"{{ .ProjectName }}/internal/model"
+    "{{ .ProjectName }}/common/base/repository"
+	"{{ .ProjectName }}/internal/{{ .BasePkgName}}/model"
 )
 
 type {{ .StructName }}Repository interface {

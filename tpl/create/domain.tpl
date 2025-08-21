@@ -1,4 +1,4 @@
-package service
+package domain
 
 import (
     "context"
@@ -7,10 +7,10 @@ import (
 	"{{ .ProjectName }}/internal/{{ .BasePkgName}}/repository"
 )
 
-type {{ .StructName }}Service interface {
+type {{ .StructName }}DomainService interface {
 	Get{{ .StructName }}(ctx context.Context, id int64) (*model.{{ .StructName }}, error)
 }
-func New{{ .StructName }}Service(
+func New{{ .StructName }}DomainService(
     service *Service,
     {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository,
 ) {{ .StructName }}Service {
@@ -20,11 +20,11 @@ func New{{ .StructName }}Service(
 	}
 }
 
-type {{ .StructNameLowerFirst }}Service struct {
+type {{ .StructNameLowerFirst }}DomainService struct {
 	*Service
 	{{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Get{{ .StructName }}(ctx context.Context, id int64) (*model.{{ .StructName }}, error) {
+func (s *{{ .StructNameLowerFirst }}DomainService) Get{{ .StructName }}(ctx context.Context, id int64) (*model.{{ .StructName }}, error) {
 	return s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}(ctx, id)
 }
