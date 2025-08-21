@@ -15,12 +15,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-nunu/nunu/config"
+	"github.com/zsljava/nunu/config"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
 	"github.com/spf13/cobra"
+	"github.com/zsljava/nunu/internal/pkg/helper"
 )
 
 var quit = make(chan os.Signal, 1)

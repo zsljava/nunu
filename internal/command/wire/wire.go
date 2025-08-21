@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
 	"github.com/spf13/cobra"
+	"github.com/zsljava/nunu/internal/pkg/helper"
 )
 
 var CmdWire = &cobra.Command{

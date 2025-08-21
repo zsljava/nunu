@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/go-nunu/nunu/config"
 	"github.com/spf13/cobra"
+	"github.com/zsljava/nunu/config"
 )
 
 var CmdUpgrade = &cobra.Command{

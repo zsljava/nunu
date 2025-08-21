@@ -9,9 +9,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/go-nunu/nunu/config"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
 	"github.com/spf13/cobra"
+	"github.com/zsljava/nunu/config"
+	"github.com/zsljava/nunu/internal/pkg/helper"
 )
 
 type Project struct {
