@@ -11,7 +11,7 @@ type {{ .StructName }}Repository interface {
 }
 
 func New{{ .StructName }}Repository(
-	repository *Repository,
+	repository *repository.Repository,
 ) {{ .StructName }}Repository {
 	return &{{ .StructNameLowerFirst }}Repository{
 		Repository: repository,
@@ -19,7 +19,7 @@ func New{{ .StructName }}Repository(
 }
 
 type {{ .StructNameLowerFirst }}Repository struct {
-	*Repository
+	*repository.Repository
 }
 
 func (r *{{ .StructNameLowerFirst }}Repository) Get{{ .StructName }}(ctx context.Context, id int64) (*model.{{ .StructName }}, error) {

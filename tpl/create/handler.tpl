@@ -2,16 +2,17 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"{{ .ProjectName }}/common/base/handler"
 	"{{ .ProjectName }}/internal/{{ .BasePkgName}}/service"
 )
 
 type {{ .StructName }}Handler struct {
-	*Handler
+	*handler.Handler
 	{{ .StructNameLowerFirst }}Service service.{{ .StructName }}Service
 }
 
 func New{{ .StructName }}Handler(
-    handler *Handler,
+    handler *handler.Handler,
     {{ .StructNameLowerFirst }}Service service.{{ .StructName }}Service,
 ) *{{ .StructName }}Handler {
 	return &{{ .StructName }}Handler{

@@ -11,7 +11,7 @@ func Init{{ .StructName }}Router(
 	allRouter gloableRouter.Routers,
 ) {
 	// No route group has permission
-	noAuthRouter := r.Group("/")
+	// noAuthRouter := r.Group("/")
 	{
 		// noAuthRouter.GET("/{{ .StructNameSnakeCase }}", allRouter.{{ .StructName }}Handler.Get{{ .StructName }})
 	}
@@ -19,12 +19,12 @@ func Init{{ .StructName }}Router(
 	// Non-strict permission routing group
     noStrictAuthRouter := r.Group("/").Use(middleware.NoStrictAuth(allRouter.JWT, allRouter.Logger))
     {
-		// noAuthRouter.GET("/{{ .StructNameSnakeCase }}", allRouter.{{ .StructName }}Handler.Get{{ .StructName }})
+		noStrictAuthRouter.GET("/{{ .StructNameSnakeCase }}", allRouter.{{ .StructName }}Handler.Get{{ .StructName }})
     }
 
     // Strict permission routing group
-    strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(allRouter.JWT, allRouter.Logger))
+    // strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(allRouter.JWT, allRouter.Logger))
     {
-		// noAuthRouter.GET("/{{ .StructNameSnakeCase }}", allRouter.{{ .StructName }}Handler.Get{{ .StructName }})
+		// strictAuthRouter.GET("/{{ .StructNameSnakeCase }}", allRouter.{{ .StructName }}Handler.Get{{ .StructName }})
     }
 }

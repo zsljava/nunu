@@ -11,17 +11,17 @@ type {{ .StructName }}DomainService interface {
 	Get{{ .StructName }}(ctx context.Context, id int64) (*model.{{ .StructName }}, error)
 }
 func New{{ .StructName }}DomainService(
-    service *Service,
+    service *service.Service,
     {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository,
-) {{ .StructName }}Service {
-	return &{{ .StructNameLowerFirst }}Service{
+) {{ .StructName }}DomainService {
+	return &{{ .StructNameLowerFirst }}DomainService{
 		Service:        service,
 		{{ .StructNameLowerFirst }}Repository: {{ .StructNameLowerFirst }}Repository,
 	}
 }
 
 type {{ .StructNameLowerFirst }}DomainService struct {
-	*Service
+	*service.Service
 	{{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository
 }
 
