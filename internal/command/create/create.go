@@ -152,9 +152,14 @@ func runCreate(cmd *cobra.Command, args []string) {
 		c.PkgName = c.BasePkgName + "/" + c.CreateType
 		c.genFile()
 
-		c.CreateType = "listener"
-		c.FilePath = "listener"
-		c.PkgName = c.BasePkgName + "/listener"
+		c.CreateType = "runner"
+		c.FilePath = "runner"
+		c.PkgName = c.BasePkgName + "/runner"
+		c.genFile()
+
+		c.CreateType = "task"
+		c.FilePath = "task"
+		c.PkgName = c.BasePkgName + "/task"
 		c.genFile()
 
 		_ = c.rewrite()
@@ -204,10 +209,16 @@ func (c *Create) rewriteWireFile() error {
 			fmt.Sprintf("New%sHandler", c.StructName),
 		},
 		{
-			"listenerSet",
-			c.StructNameLowerFirst + "Listener",
-			fmt.Sprintf("%s/listener/%s", c.ProjectName, c.BasePkgName),
-			fmt.Sprintf("New%sListener", c.StructName),
+			"runnerSet",
+			c.StructNameLowerFirst + "Runner",
+			fmt.Sprintf("%s/runner/%s", c.ProjectName, c.BasePkgName),
+			fmt.Sprintf("New%sRunner", c.StructName),
+		},
+		{
+			"taskSet",
+			c.StructNameLowerFirst + "Task",
+			fmt.Sprintf("%s/task/%s", c.ProjectName, c.BasePkgName),
+			fmt.Sprintf("New%sTask", c.StructName),
 		},
 	}
 
@@ -245,14 +256,14 @@ func (c *Create) rewriteRouterFile() error {
 
 	return processSourceFile(filePath, func(fset *token.FileSet, file *ast.File) (bool, error) {
 		// 1. 添加 import
-		imported, err := addImport(file, handlerPkgPath)
+		imported, err := addNamedImport(file, c.StructNameLowerFirst+"Handler", handlerPkgPath)
 		if err != nil {
 			return false, err
 		}
 
 		// 2. 添加结构体字段
 		newFieldName := c.StructName + "Handler"
-		newFieldType := "*handler." + c.StructName + "Handler"
+		newFieldType := "*" + c.StructNameLowerFirst + "Handler." + c.StructName + "Handler"
 		added, err := addStructField(file, structName, newFieldName, newFieldType)
 		if err != nil {
 			return false, err
