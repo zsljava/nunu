@@ -3,7 +3,6 @@ package task
 import (
 	"context"
 	"{{ .ProjectName }}/internal/{{ .BasePkgName}}/repository"
-	"time"
 )
 
 type {{ .StructName }}Task interface {
