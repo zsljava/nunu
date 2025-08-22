@@ -171,12 +171,127 @@ func runCreate(cmd *cobra.Command, args []string) {
 // rewrite 是重构后的顶层函数，负责协调整个重写流程
 func (c *Create) rewrite() error {
 	if err := c.rewriteRouterFile(); err != nil {
-		return fmt.Errorf("failed to rewrite router file: %w", err)
+		_ = fmt.Errorf("failed to rewrite router file: %w", err)
 	}
 	if err := c.rewriteWireFile(); err != nil {
-		return fmt.Errorf("failed to rewrite wire file: %w", err)
+		_ = fmt.Errorf("failed to rewrite wire file: %w", err)
+	}
+	if err := c.rewriteHttpFile(); err != nil {
+		_ = fmt.Errorf("failed to rewrite wire file: %w", err)
 	}
 	return nil
+}
+func (c *Create) rewriteHttpFile() error {
+	filePath := "common/server/http.go"
+
+	// 要检查和添加的方法名
+	methodNameToFind := "init" + c.StructName + "Router"
+
+	return processSourceFile(filePath, func(fset *token.FileSet, file *ast.File) (bool, error) {
+		var modified bool
+		added, err := addMethodField(fset, file, methodNameToFind)
+		if err != nil {
+			return false, err
+		}
+
+		if added {
+			modified = true
+		}
+		return modified, nil
+	})
+}
+
+func addMethodField(fset *token.FileSet, file *ast.File, methodNameToFind string) (bool, error) {
+	// 标记是否找到了方法调用
+	var callExists bool
+	var targetFunc *ast.FuncDecl
+
+	// 2. 遍历 AST 查找 NewHTTPServer 函数
+	ast.Inspect(file, func(n ast.Node) bool {
+		fn, ok := n.(*ast.FuncDecl)
+		if ok && fn.Name.Name == "NewHTTPServer" {
+			targetFunc = fn
+			// 3. 在函数体内查找是否存在 router.initXxxRouter 调用
+			for _, stmt := range fn.Body.List {
+				exprStmt, isExprStmt := stmt.(*ast.ExprStmt)
+				if !isExprStmt {
+					continue
+				}
+				callExpr, isCallExpr := exprStmt.X.(*ast.CallExpr)
+				if !isCallExpr {
+					continue
+				}
+				selectorExpr, isSelectorExpr := callExpr.Fun.(*ast.SelectorExpr)
+				if !isSelectorExpr {
+					continue
+				}
+				if x, isIdent := selectorExpr.X.(*ast.Ident); isIdent && x.Name == "router" {
+					if selectorExpr.Sel.Name == methodNameToFind {
+						callExists = true
+						return false // 停止遍历
+					}
+				}
+			}
+			return false // 找到函数后停止遍历
+		}
+		return true
+	})
+
+	// 4. 如果方法调用不存在，则添加它
+	if targetFunc != nil && !callExists {
+
+		// 创建 router.initXxxRouter(publicRouter, privateRouter, routers) 的 AST 节点
+		newCall := &ast.ExprStmt{
+			X: &ast.CallExpr{
+				Fun: &ast.SelectorExpr{
+					X:   ast.NewIdent("router"),
+					Sel: ast.NewIdent(methodNameToFind),
+				},
+				Args: []ast.Expr{
+					ast.NewIdent("publicRouter"),
+					ast.NewIdent("privateRouter"),
+					ast.NewIdent("routers"),
+				},
+			},
+		}
+
+		// 寻找插入位置（在 router.InitUserRouter 之前）
+		insertIndex := -1
+		for i, stmt := range targetFunc.Body.List {
+			if exprStmt, ok := stmt.(*ast.ExprStmt); ok {
+				if call, ok := exprStmt.X.(*ast.CallExpr); ok {
+					if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
+						if x, ok := sel.X.(*ast.Ident); ok && x.Name == "router" {
+							if sel.Sel.Name == "InitUserRouter" {
+								insertIndex = i
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// 如果找到了 `InitUserRouter`，就在它前面插入，否则追加到末尾（在 return 之前）
+		if insertIndex != -1 {
+			targetFunc.Body.List = append(targetFunc.Body.List[:insertIndex], append([]ast.Stmt{newCall}, targetFunc.Body.List[insertIndex:]...)...)
+		} else if len(targetFunc.Body.List) > 0 {
+			// 将其插入到 return 语句之前
+			lastStmtIndex := len(targetFunc.Body.List) - 1
+			if _, ok := targetFunc.Body.List[lastStmtIndex].(*ast.ReturnStmt); ok {
+				targetFunc.Body.List = append(targetFunc.Body.List[:lastStmtIndex], append([]ast.Stmt{newCall}, targetFunc.Body.List[lastStmtIndex:]...)...)
+			} else {
+				targetFunc.Body.List = append(targetFunc.Body.List, newCall)
+			}
+		}
+
+	} else if callExists {
+		fmt.Printf("skip already exists in NewHTTPServer `router.%s`\n", methodNameToFind)
+	} else {
+		fmt.Println("Not Found `NewHTTPServer` function")
+	}
+
+	return true, nil
 }
 
 // rewriteWireFile 负责处理 wire.go 文件的重写逻辑
@@ -365,11 +480,14 @@ func addStructField(file *ast.File, structName, fieldName, fieldType string) (bo
 		for _, f := range st.Fields.List {
 			for _, name := range f.Names {
 				if name.Name == fieldName {
-					fmt.Printf("Field already exists in struct %s: %s\n", structName, fieldName)
-					modified = false
+					fmt.Printf("Skip already exists in struct %s: %s\n", structName, fieldName)
+					modified = true
 					return false
 				}
 			}
+		}
+		if modified {
+			return false
 		}
 
 		// 添加新字段

@@ -1,9 +1,9 @@
 package model
 
-import "{{ .ProjectName }}/common"
+import "github.com/zsljava/gokit/common/response"
 
 type {{ .StructName }}Response struct {
-    common.Response
+    response.Response
     Data {{ .StructName }}ResponseData
 }
 
