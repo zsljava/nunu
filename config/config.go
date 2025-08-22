@@ -1,7 +1,7 @@
 package config
 
 var (
-	Version = "1.1.9"
+	Version = "1.1.10"
 	WireCmd = "github.com/google/wire/cmd/wire@latest"
 	//NunuCmd       = "github.com/go-nunu/nunu@latest"
 	NunuCmd       = "github.com/zsljava/nunu@latest"

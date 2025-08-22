@@ -335,13 +335,13 @@ func (c *Create) rewriteWireFile() error {
 		{
 			"runnerSet",
 			c.StructNameLowerFirst + "Runner",
-			fmt.Sprintf("%s/runner/%s", c.ProjectName, c.BasePkgName),
+			fmt.Sprintf("%s/runner", c.ProjectName),
 			fmt.Sprintf("New%sRunner", c.StructName),
 		},
 		{
 			"taskSet",
 			c.StructNameLowerFirst + "Task",
-			fmt.Sprintf("%s/task/%s", c.ProjectName, c.BasePkgName),
+			fmt.Sprintf("%s/task", c.ProjectName),
 			fmt.Sprintf("New%sTask", c.StructName),
 		},
 	}
