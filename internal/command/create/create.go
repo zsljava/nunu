@@ -193,7 +193,7 @@ func (c *Create) rewriteHttpFile() error {
 		var modified bool
 
 		// 添加 import
-		imported, err := addNamedImport(file, c.StructNameLowerFirst+"Handler", handlerPkgPath)
+		imported, err := addNamedImport(file, c.StructName+"Router", handlerPkgPath)
 		if err != nil {
 			return false, err
 		}
@@ -253,7 +253,7 @@ func addMethodField(fset *token.FileSet, file *ast.File, keyName, methodNameToFi
 		newCall := &ast.ExprStmt{
 			X: &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
-					X:   ast.NewIdent("router"),
+					X:   ast.NewIdent(keyName),
 					Sel: ast.NewIdent(methodNameToFind),
 				},
 				Args: []ast.Expr{
