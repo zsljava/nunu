@@ -185,23 +185,32 @@ func (c *Create) rewriteHttpFile() error {
 	filePath := "common/server/http.go"
 
 	// 要检查和添加的方法名
+	keyName := c.StructName + "Router"
 	methodNameToFind := "init" + c.StructName + "Router"
+	handlerPkgPath := fmt.Sprintf(`%s/internal/%s/router`, c.ProjectName, c.BasePkgName)
 
 	return processSourceFile(filePath, func(fset *token.FileSet, file *ast.File) (bool, error) {
 		var modified bool
-		added, err := addMethodField(fset, file, methodNameToFind)
+
+		// 添加 import
+		imported, err := addNamedImport(file, c.StructNameLowerFirst+"Handler", handlerPkgPath)
 		if err != nil {
 			return false, err
 		}
 
-		if added {
+		added, err := addMethodField(fset, file, keyName, methodNameToFind)
+		if err != nil {
+			return false, err
+		}
+
+		if imported && added {
 			modified = true
 		}
 		return modified, nil
 	})
 }
 
-func addMethodField(fset *token.FileSet, file *ast.File, methodNameToFind string) (bool, error) {
+func addMethodField(fset *token.FileSet, file *ast.File, keyName, methodNameToFind string) (bool, error) {
 	// 标记是否找到了方法调用
 	var callExists bool
 	var targetFunc *ast.FuncDecl
@@ -225,7 +234,7 @@ func addMethodField(fset *token.FileSet, file *ast.File, methodNameToFind string
 				if !isSelectorExpr {
 					continue
 				}
-				if x, isIdent := selectorExpr.X.(*ast.Ident); isIdent && x.Name == "router" {
+				if x, isIdent := selectorExpr.X.(*ast.Ident); isIdent && x.Name == keyName {
 					if selectorExpr.Sel.Name == methodNameToFind {
 						callExists = true
 						return false // 停止遍历
@@ -261,7 +270,7 @@ func addMethodField(fset *token.FileSet, file *ast.File, methodNameToFind string
 			if exprStmt, ok := stmt.(*ast.ExprStmt); ok {
 				if call, ok := exprStmt.X.(*ast.CallExpr); ok {
 					if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
-						if x, ok := sel.X.(*ast.Ident); ok && x.Name == "router" {
+						if x, ok := sel.X.(*ast.Ident); ok && x.Name == "userRouter" {
 							if sel.Sel.Name == "InitUserRouter" {
 								insertIndex = i
 								break
