@@ -185,7 +185,7 @@ func (c *Create) rewriteHttpFile() error {
 	filePath := "common/server/http.go"
 
 	// 要检查和添加的方法名
-	keyName := c.StructName + "Router"
+	keyName := c.StructNameLowerFirst + "Router"
 	methodNameToFind := "Init" + c.StructName + "Router"
 	handlerPkgPath := fmt.Sprintf(`%s/internal/%s/router`, c.ProjectName, c.BasePkgName)
 
