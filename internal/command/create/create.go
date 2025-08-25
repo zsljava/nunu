@@ -40,7 +40,7 @@ func NewCreate() *Create {
 
 var CmdCreate = &cobra.Command{
 	Use:     "create [type] [handler-name]",
-	Short:   "Create a new handler/service/repository/model",
+	Short:   "Create a new handler/service/repository/model/router/domain && Rewrite wire.go/router.go/http.go",
 	Example: "nunu create handler user",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
